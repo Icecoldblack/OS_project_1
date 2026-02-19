@@ -14,7 +14,7 @@ public class Main {
         readProcesses(filename);
 
         // Display loaded processes
-        System.out.println("=== Loaded Processes ===");
+        System.out.println(" Loaded Processes ");
         System.out.printf("%-5s %-15s %-12s %-10s%n", "PID", "Arrival_Time", "Burst_Time", "Priority");
         System.out.println("-------------------------------------------");
         for (Process p : processList) {
@@ -22,6 +22,12 @@ public class Main {
                     p.getPid(), p.getArrivalTime(), p.getBurstTime(), p.getPriority());
         }
         System.out.println("\nTotal processes loaded: " + processList.size());
+
+        // Run all four scheduling algorithms
+        Scheduler.fcfs(processList);
+        Scheduler.sjf(processList);
+        Scheduler.priorityScheduling(processList);
+        Scheduler.roundRobin(processList, 2); // Time quantum = 2
     }
 
     /**
