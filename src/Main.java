@@ -23,11 +23,9 @@ public class Main {
         }
         System.out.println("\nTotal processes loaded: " + processList.size());
 
-        // Run all four scheduling algorithms
+        // Run FCFS and SJF scheduling algorithms
         Scheduler.fcfs(processList);
         Scheduler.sjf(processList);
-        Scheduler.priorityScheduling(processList);
-        Scheduler.roundRobin(processList, 2); // Time quantum = 2
     }
 
     /**

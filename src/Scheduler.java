@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Scheduler {
 
@@ -71,106 +69,6 @@ public class Scheduler {
         }
 
         // Sort by PID for display
-        completed.sort(Comparator.comparingInt(Process::getPid));
-        printResults(completed);
-    }
-
-    // ==================== Priority Scheduling ====================
-    public static void priorityScheduling(List<Process> original) {
-        List<Process> processes = copyList(original);
-        System.out.println("\n========== Priority Scheduling (Lower # = Higher Priority) ==========");
-
-        List<Process> completed = new ArrayList<>();
-        List<Process> remaining = new ArrayList<>(processes);
-        int currentTime = 0;
-
-        while (!remaining.isEmpty()) {
-            // Find processes that have arrived by currentTime
-            List<Process> available = new ArrayList<>();
-            for (Process p : remaining) {
-                if (p.getArrivalTime() <= currentTime) {
-                    available.add(p);
-                }
-            }
-
-            if (available.isEmpty()) {
-                int earliest = Integer.MAX_VALUE;
-                for (Process p : remaining) {
-                    earliest = Math.min(earliest, p.getArrivalTime());
-                }
-                currentTime = earliest;
-                continue;
-            }
-
-            // Pick the one with the highest priority (lowest number)
-            available.sort(Comparator.comparingInt(Process::getPriority)
-                    .thenComparingInt(Process::getArrivalTime));
-            Process highest = available.get(0);
-
-            highest.setWaitingTime(currentTime - highest.getArrivalTime());
-            currentTime += highest.getBurstTime();
-            highest.setTurnaroundTime(highest.getWaitingTime() + highest.getBurstTime());
-
-            completed.add(highest);
-            remaining.remove(highest);
-        }
-
-        completed.sort(Comparator.comparingInt(Process::getPid));
-        printResults(completed);
-    }
-
-    // ==================== Round Robin ====================
-    public static void roundRobin(List<Process> original, int timeQuantum) {
-        List<Process> processes = copyList(original);
-        System.out.println("\n========== Round Robin (Time Quantum = " + timeQuantum + ") ==========");
-
-        // Sort by arrival time initially
-        processes.sort(Comparator.comparingInt(Process::getArrivalTime)
-                .thenComparingInt(Process::getPid));
-
-        Queue<Process> readyQueue = new LinkedList<>();
-        List<Process> completed = new ArrayList<>();
-        int currentTime = 0;
-        int index = 0; // tracks which processes have entered the queue
-
-        // Add the first process(es) that arrive at time 0
-        while (index < processes.size() && processes.get(index).getArrivalTime() <= currentTime) {
-            readyQueue.add(processes.get(index));
-            index++;
-        }
-
-        while (!readyQueue.isEmpty() || index < processes.size()) {
-            if (readyQueue.isEmpty()) {
-                // CPU idle — jump to the next arrival
-                currentTime = processes.get(index).getArrivalTime();
-                while (index < processes.size() && processes.get(index).getArrivalTime() <= currentTime) {
-                    readyQueue.add(processes.get(index));
-                    index++;
-                }
-            }
-
-            Process current = readyQueue.poll();
-            int execTime = Math.min(current.getRemainingTime(), timeQuantum);
-            currentTime += execTime;
-            current.setRemainingTime(current.getRemainingTime() - execTime);
-
-            // Add any new arrivals that came during this execution
-            while (index < processes.size() && processes.get(index).getArrivalTime() <= currentTime) {
-                readyQueue.add(processes.get(index));
-                index++;
-            }
-
-            if (current.getRemainingTime() == 0) {
-                // Process finished
-                current.setTurnaroundTime(currentTime - current.getArrivalTime());
-                current.setWaitingTime(current.getTurnaroundTime() - current.getBurstTime());
-                completed.add(current);
-            } else {
-                // Not finished — put back in queue
-                readyQueue.add(current);
-            }
-        }
-
         completed.sort(Comparator.comparingInt(Process::getPid));
         printResults(completed);
     }
