@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    // Store all processes read from the file
     static List<Process> processList = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -13,7 +12,6 @@ public class Main {
 
         readProcesses(filename);
 
-        // Display loaded processes
         System.out.println(" Loaded Processes ");
         System.out.printf("%-5s %-15s %-12s %-10s%n", "PID", "Arrival_Time", "Burst_Time", "Priority");
         System.out.println("-------------------------------------------");
@@ -23,15 +21,27 @@ public class Main {
         }
         System.out.println("\nTotal processes loaded: " + processList.size());
 
-        // Run FCFS and SJF scheduling algorithms
         Scheduler.fcfs(processList);
         Scheduler.sjf(processList);
+
+        // Step 4: Memory Management
+
+        // Memory Allocation
+        int[] blockSizes = { 100, 500, 200, 300, 600 };
+        int[] processSizesForMem = { 212, 417, 112, 426 };
+
+        MemoryManager.firstFit(blockSizes, processSizesForMem);
+        MemoryManager.bestFit(blockSizes, processSizesForMem);
+        MemoryManager.worstFit(blockSizes, processSizesForMem);
+
+        // Page Replacement
+        int[] pages = { 7, 0, 1, 2, 0, 3, 0, 4, 2, 3 };
+        int frameCount = 3;
+
+        MemoryManager.fifoPageReplacement(pages, frameCount);
+        MemoryManager.lruPageReplacement(pages, frameCount);
     }
 
-    /**
-     * Reads process data from a tab/whitespace-delimited text file.
-     * Skips the header line and parses each subsequent line into a Process object.
-     */
     public static void readProcesses(String filename) {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -42,7 +52,6 @@ public class Main {
                 if (line.isEmpty())
                     continue;
 
-                // Skip the header row
                 if (isHeader) {
                     isHeader = false;
                     continue;

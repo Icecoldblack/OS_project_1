@@ -5,7 +5,7 @@ public class Process {
     private int priority;
     private int waitingTime;
     private int turnaroundTime;
-    private int remainingTime; // Used for Round Robin
+    private int remainingTime;
 
     public Process(int pid, int arrivalTime, int burstTime, int priority) {
         this.pid = pid;
@@ -15,7 +15,6 @@ public class Process {
         this.remainingTime = burstTime;
     }
 
-    // Copy constructor — so each algorithm gets its own copy
     public Process(Process other) {
         this.pid = other.pid;
         this.arrivalTime = other.arrivalTime;
@@ -26,7 +25,6 @@ public class Process {
         this.remainingTime = other.burstTime;
     }
 
-    // Getters
     public int getPid() {
         return pid;
     }
@@ -43,7 +41,18 @@ public class Process {
         return priority;
     }
 
-    // Setters
+    public int getWaitingTime() {
+        return waitingTime;
+    }
+
+    public int getTurnaroundTime() {
+        return turnaroundTime;
+    }
+
+    public int getRemainingTime() {
+        return remainingTime;
+    }
+
     public void setPid(int pid) {
         this.pid = pid;
     }
@@ -60,24 +69,12 @@ public class Process {
         this.priority = priority;
     }
 
-    public int getWaitingTime() {
-        return waitingTime;
-    }
-
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
 
-    public int getTurnaroundTime() {
-        return turnaroundTime;
-    }
-
     public void setTurnaroundTime(int turnaroundTime) {
         this.turnaroundTime = turnaroundTime;
-    }
-
-    public int getRemainingTime() {
-        return remainingTime;
     }
 
     public void setRemainingTime(int remainingTime) {

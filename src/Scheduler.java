@@ -9,21 +9,27 @@ public class Scheduler {
         List<Process> processes = copyList(original);
         System.out.println("\n========== FCFS (First-Come, First-Served) ==========");
 
-        // Sort by arrival time (ties broken by PID)
         processes.sort(Comparator.comparingInt(Process::getArrivalTime)
                 .thenComparingInt(Process::getPid));
 
+        List<String> ganttNames = new ArrayList<>();
+        List<Integer> ganttTimes = new ArrayList<>();
         int currentTime = 0;
+
         for (Process p : processes) {
-            // If CPU is idle, jump to the next process's arrival
             if (currentTime < p.getArrivalTime()) {
                 currentTime = p.getArrivalTime();
             }
+            ganttNames.add("P" + p.getPid());
+            ganttTimes.add(currentTime);
+
             p.setWaitingTime(currentTime - p.getArrivalTime());
             currentTime += p.getBurstTime();
             p.setTurnaroundTime(p.getWaitingTime() + p.getBurstTime());
         }
+        ganttTimes.add(currentTime);
 
+        printGanttChart(ganttNames, ganttTimes);
         printResults(processes);
     }
 
@@ -34,10 +40,11 @@ public class Scheduler {
 
         List<Process> completed = new ArrayList<>();
         List<Process> remaining = new ArrayList<>(processes);
+        List<String> ganttNames = new ArrayList<>();
+        List<Integer> ganttTimes = new ArrayList<>();
         int currentTime = 0;
 
         while (!remaining.isEmpty()) {
-            // Find processes that have arrived by currentTime
             List<Process> available = new ArrayList<>();
             for (Process p : remaining) {
                 if (p.getArrivalTime() <= currentTime) {
@@ -46,7 +53,6 @@ public class Scheduler {
             }
 
             if (available.isEmpty()) {
-                // No process available — jump ahead to nearest arrival
                 int earliest = Integer.MAX_VALUE;
                 for (Process p : remaining) {
                     earliest = Math.min(earliest, p.getArrivalTime());
@@ -55,10 +61,12 @@ public class Scheduler {
                 continue;
             }
 
-            // Pick the one with the shortest burst time
             available.sort(Comparator.comparingInt(Process::getBurstTime)
                     .thenComparingInt(Process::getArrivalTime));
             Process shortest = available.get(0);
+
+            ganttNames.add("P" + shortest.getPid());
+            ganttTimes.add(currentTime);
 
             shortest.setWaitingTime(currentTime - shortest.getArrivalTime());
             currentTime += shortest.getBurstTime();
@@ -67,8 +75,9 @@ public class Scheduler {
             completed.add(shortest);
             remaining.remove(shortest);
         }
+        ganttTimes.add(currentTime);
 
-        // Sort by PID for display
+        printGanttChart(ganttNames, ganttTimes);
         completed.sort(Comparator.comparingInt(Process::getPid));
         printResults(completed);
     }
@@ -83,8 +92,36 @@ public class Scheduler {
         return copy;
     }
 
+    private static void printGanttChart(List<String> names, List<Integer> times) {
+        System.out.println("\nGantt Chart:");
+
+        StringBuilder topBar = new StringBuilder("|");
+        StringBuilder timeline = new StringBuilder();
+
+        for (int i = 0; i < names.size(); i++) {
+            String label = " " + names.get(i) + " ";
+            topBar.append(label).append("|");
+        }
+
+        for (int i = 0; i < times.size(); i++) {
+            if (i == 0) {
+                timeline.append(times.get(i));
+            } else {
+                String prevLabel = " " + names.get(i - 1) + " ";
+                int spacing = prevLabel.length() + 1 - String.valueOf(times.get(i)).length();
+                for (int s = 0; s < spacing; s++) {
+                    timeline.append(" ");
+                }
+                timeline.append(times.get(i));
+            }
+        }
+
+        System.out.println(topBar);
+        System.out.println(timeline);
+    }
+
     private static void printResults(List<Process> processes) {
-        System.out.printf("%-5s %-15s %-12s %-10s %-15s %-15s%n",
+        System.out.printf("\n%-5s %-15s %-12s %-10s %-15s %-15s%n",
                 "PID", "Arrival_Time", "Burst_Time", "Priority", "Waiting_Time", "Turnaround_Time");
         System.out.println("-----------------------------------------------------------------------");
 
