@@ -30,7 +30,7 @@ public class Scheduler {
         ganttTimes.add(currentTime);
 
         printGanttChart(ganttNames, ganttTimes);
-        printResults(processes);
+        printResults(processes, ganttTimes);
     }
 
     // ==================== SJF ====================
@@ -79,7 +79,7 @@ public class Scheduler {
 
         printGanttChart(ganttNames, ganttTimes);
         completed.sort(Comparator.comparingInt(Process::getPid));
-        printResults(completed);
+        printResults(completed, ganttTimes);
     }
 
     // ==================== Helper Methods ====================
@@ -120,21 +120,26 @@ public class Scheduler {
         System.out.println(timeline);
     }
 
-    private static void printResults(List<Process> processes) {
+    private static void printResults(List<Process> processes, List<Integer> ganttTimes) {
         System.out.printf("\n%-5s %-15s %-12s %-10s %-15s %-15s%n",
                 "PID", "Arrival_Time", "Burst_Time", "Priority", "Waiting_Time", "Turnaround_Time");
         System.out.println("-----------------------------------------------------------------------");
 
-        double totalWT = 0, totalTAT = 0;
+        double totalWT = 0, totalTAT = 0, totalBurst = 0;
         for (Process p : processes) {
             System.out.printf("%-5d %-15d %-12d %-10d %-15d %-15d%n",
                     p.getPid(), p.getArrivalTime(), p.getBurstTime(),
                     p.getPriority(), p.getWaitingTime(), p.getTurnaroundTime());
             totalWT += p.getWaitingTime();
             totalTAT += p.getTurnaroundTime();
+            totalBurst += p.getBurstTime();
         }
+
+        int totalElapsed = ganttTimes.get(ganttTimes.size() - 1) - ganttTimes.get(0);
+        double cpuUtilization = (totalBurst / totalElapsed) * 100.0;
 
         System.out.printf("\nAverage Waiting Time:    %.2f%n", totalWT / processes.size());
         System.out.printf("Average Turnaround Time: %.2f%n", totalTAT / processes.size());
+        System.out.printf("CPU Utilization:         %.2f%%%n", cpuUtilization);
     }
 }
