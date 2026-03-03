@@ -20,7 +20,6 @@ OS_project_1/
 │   ├── Scheduler.java       # FCFS and SJF scheduling algorithms
 │   └── MemoryManager.java   # Memory allocation and page replacement
 ├── processes.txt            # Input file with process data
-└── report.md                # Project report
 ```
 
 ## How to Run
